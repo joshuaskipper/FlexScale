@@ -20,9 +20,9 @@ This console application allows users to design and summarize a cloud infrastruc
 
 ## Usage
 
-1. Clone this repository.
-2. Open the solution in your C# development environment.
-3. Build and run the application.
+1. Download all files except README.md and place them in a folder.
+2. Open the folder in your C# development environment (preferably Visual Studio Code or Visual Studio).
+3. Run the application.
 4. Follow the console prompts to enter your project details.
 5. View the summary and final totals in the console output.
 
