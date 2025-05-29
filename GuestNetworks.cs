@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +23,11 @@ namespace CloudAppRetry
             Memory = memory;
             Storage = storage;
             LoadBalancer = loadbalancer;
+        }
+
+        public string DisplayGN() 
+        {
+            return $"{ID},{Instance},{CPU},{Memory},{Storage},{LoadBalancer}";
         }
     }
 }
