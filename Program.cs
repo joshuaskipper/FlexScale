@@ -1,5 +1,6 @@
-﻿using Humanizer;
+using Humanizer;
 using System;
+using System.IO;
 
 namespace CloudAppRetry 
 {
@@ -7,6 +8,9 @@ namespace CloudAppRetry
     {
         static void Main(string[] args) 
         {
+            //creating filepath
+            string filepath = "GuestNetworks.txt";
+
             List<Project> allProjects = new List<Project>();
             List<VPC> allVPCS = new List<VPC>();
             List<GuestNetwork> allGuestNetworks = new List<GuestNetwork>();
@@ -97,14 +101,24 @@ namespace CloudAppRetry
                     Console.WriteLine($"Primary Storage(GB):{guestnetwork.Storage * guestnetwork.Instance}");
                     Console.WriteLine($"LoadBalancer:{(guestnetwork.LoadBalancer ? "Yes":"No")}\n");
 
+
                 }
                 Console.WriteLine($"------------------------------------------------------\n");
             }
 
-            // At the very end of your Main method
+            using (StreamWriter writer = new StreamWriter(filepath)) 
+            {
+                writer.WriteLine("GuestNetwork,Instance,CPUs,Memory,PrimaryStorage,LoadBalancer");
+                foreach (var gn in allGuestNetworks) 
+                {
+                    writer.WriteLine(gn.DisplayGN());
+                }
+            }
 
-            // Final Totals
-            int totalVPCs = allVPCS.Count;
+                // At the very end of your Main method
+
+                // Final Totals
+                int totalVPCs = allVPCS.Count;
             int totalGuestNetworks = allGuestNetworks.Count;
             int totalInstances = 0;
             int totalCPUs = 0;
@@ -134,6 +148,11 @@ namespace CloudAppRetry
             Console.WriteLine($"Total Storage (GB): {totalStorage}");
             Console.WriteLine($"Total Load Balancers: {totalLoadBalancers}");
             Console.WriteLine("==========================================");
+
+
+            //Added 5/28/2025 first post completion change
+            //export data in txt file...
+
 
 
         }
