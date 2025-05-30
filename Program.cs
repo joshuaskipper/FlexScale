@@ -54,7 +54,7 @@ namespace CloudAppRetry
 
             foreach (var vpc in myProject.VPCS)
             {
-                output.AppendLine($"-------------VPC{vpc.ID}-------------");
+                output.AppendLine($"*VPC{vpc.ID}");
                 foreach (var gn in vpc.GuestNetworks)
                 {
                     k++;
@@ -68,8 +68,7 @@ namespace CloudAppRetry
                 output.AppendLine("------------------------------------------------------\n");
             }
 
-            File.WriteAllText(filepath, output.ToString());
-            Console.WriteLine(output.ToString());
+
 
             // Final Totals
             int totalInstances = 0, totalCPUs = 0, totalMemory = 0, totalStorage = 0, totalLoadBalancers = 0;
@@ -86,15 +85,20 @@ namespace CloudAppRetry
                 }
             }
 
-            Console.WriteLine("============== Final Totals ==============");
-            Console.WriteLine($"Total VPCs: {allVPCS.Count}");
-            Console.WriteLine($"Total Guest Networks: {allGuestNetworks.Count}");
-            Console.WriteLine($"Total Instances: {totalInstances}");
-            Console.WriteLine($"Total CPUs: {totalCPUs}");
-            Console.WriteLine($"Total Memory (GB): {totalMemory}");
-            Console.WriteLine($"Total Storage (GB): {totalStorage}");
-            Console.WriteLine($"Total Load Balancers: {totalLoadBalancers}");
-            Console.WriteLine("==========================================");
+            output.AppendLine("============== Final Totals ==============");
+            output.AppendLine($"Total VPCs: {allVPCS.Count}");
+            output.AppendLine($"Total Guest Networks: {allGuestNetworks.Count}");
+            output.AppendLine($"Total Instances: {totalInstances}");
+            output.AppendLine($"Total CPUs: {totalCPUs}");
+            output.AppendLine($"Total Memory (GB): {totalMemory}");
+            output.AppendLine($"Total Storage (GB): {totalStorage}");
+            output.AppendLine($"Total Load Balancers: {totalLoadBalancers}");
+            output.AppendLine("==========================================");
+
+            File.WriteAllText(filepath, output.ToString());
+            Console.WriteLine(output.ToString());
+
+
         }
 
         // Repeat methods
