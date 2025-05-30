@@ -1,130 +1,78 @@
 using Humanizer;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
-namespace CloudAppRetry 
+namespace CloudAppRetry
 {
     class Program
     {
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
-            //creating filepath
+            // Initialize file path
             string filepath = "GuestNetworks.txt";
-
             List<Project> allProjects = new List<Project>();
             List<VPC> allVPCS = new List<VPC>();
             List<GuestNetwork> allGuestNetworks = new List<GuestNetwork>();
-            //Just adding the date
-            Console.WriteLine($"{DateTime.Today.ToString("D")}");
 
-            // Grabbing the project name
-            Console.WriteLine("\nWhat is your project name?");
-            var projName = Console.ReadLine();
+            Console.WriteLine($"{DateTime.Today.ToString("D")}\n");
 
-            Console.WriteLine($"\nAdd a description for {projName}");
-            var projDesc = Console.ReadLine();
-            int projVPC;
-            Console.WriteLine($"\nHow many VPCS for {projName}");
-            while(!int.TryParse(Console.ReadLine(), out projVPC)) 
-            {
-                Console.WriteLine("Invalid value, please enter a numeric value.");
-            }
+            string projName = ReadString("What is your project name?");
+            string projDesc = ReadString($"\nAdd a description for {projName}");
+            int projVPC = ReadInt($"\nHow many VPCs for {projName}?");
+
             Project myProject = new Project(projName, projDesc);
+            allProjects.Add(myProject);
 
-
-            for (int i = 1; i <= projVPC; i++) 
+            for (int i = 1; i <= projVPC; i++)
             {
                 VPC myVPC = new VPC(i);
                 myProject.VPCS.Add(myVPC);
                 allVPCS.Add(myVPC);
-                int projGuestNetworks;
-                Console.WriteLine($"\nHow many Guest Networks for your {i.Ordinalize()} VPC?");
-                while (!int.TryParse(Console.ReadLine(), out projGuestNetworks)) 
+
+                int projGuestNetworks = ReadInt($"\nHow many Guest Networks for your {i.Ordinalize()} VPC?");
+                for (int j = 1; j <= projGuestNetworks; j++)
                 {
-                    Console.WriteLine("Invalid value, please enter a numeric value.");
-                }
-                for (int j = 1; j <= projGuestNetworks; j++) 
-                {
-                    int projInstance;
-                    int projCPU;
-                    int projMemory;
-                    int projStorage;
-                    bool projLoadBalancer;
-                    Console.WriteLine($"\nHow many Instances for your {j.Ordinalize()} Guest Network?");
-                    while (!int.TryParse(Console.ReadLine(), out projInstance))
-                    {
-                        Console.WriteLine("Invalid value, please enter a numeric value.");
-                    }
-                    Console.WriteLine($"\nCPUs per Instance?");
-                    while (!int.TryParse(Console.ReadLine(), out projCPU))
-                    {
-                        Console.WriteLine("Invalid value, please enter a numeric value.");
-                    }
-                    Console.WriteLine($"\nMemory per Instance?");
-                    while (!int.TryParse(Console.ReadLine(), out projMemory))
-                    {
-                        Console.WriteLine("Invalid value, please enter a numeric value.");
-                    }
-                    Console.WriteLine($"\nPrimary Storage per Instance?");
-                    while (!int.TryParse(Console.ReadLine(), out projStorage))
-                    {
-                        Console.WriteLine("Invalid value, please enter a numeric value.");
-                    }
-                    Console.WriteLine($"Does Guest Network {j} have a Load Balancer? (yes/no)");
-                    if (Console.ReadLine().Trim().ToLower() == "yes")
-                    {
-                        projLoadBalancer = true;
-                    }
-                    else 
-                    {
-                        projLoadBalancer = false;
-                    }
-                    GuestNetwork myGN = new GuestNetwork(j,projInstance,projCPU, projMemory, projStorage, projLoadBalancer);
+                    int projInstance = ReadInt($"\nHow many Instances for your {j.Ordinalize()} Guest Network?");
+                    int projCPU = ReadInt("CPUs per Instance?");
+                    int projMemory = ReadInt("Memory per Instance (GB)?");
+                    int projStorage = ReadInt("Primary Storage per Instance (GB)?");
+                    bool projLoadBalancer = ReadYesNo($"Does Guest Network {j} have a Load Balancer? (yes/no)");
+
+                    GuestNetwork myGN = new GuestNetwork(j, projInstance, projCPU, projMemory, projStorage, projLoadBalancer);
                     myVPC.GuestNetworks.Add(myGN);
                     allGuestNetworks.Add(myGN);
                 }
-                
-
             }
+
+            // Generate contents for file output
+            StringBuilder output = new StringBuilder();
             int k = 0;
-            Console.WriteLine(myProject.DisplayInfo());
-            foreach (var project in myProject.VPCS) 
+
+            output.AppendLine(myProject.DisplayInfo());
+
+            foreach (var vpc in myProject.VPCS)
             {
-                Console.WriteLine($"-------------VPC{project.ID}-------------");
-                foreach (var guestnetwork in project.GuestNetworks) 
+                output.AppendLine($"-------------VPC{vpc.ID}-------------");
+                foreach (var gn in vpc.GuestNetworks)
                 {
                     k++;
-                    Console.WriteLine($"GuestNetwork {k}");
-                    Console.WriteLine($"Instance:{guestnetwork.Instance}");
-                    Console.WriteLine($"CPUs:{guestnetwork.CPU * guestnetwork.Instance}");
-                    Console.WriteLine($"Memory(GB):{guestnetwork.Memory * guestnetwork.Instance}");
-                    Console.WriteLine($"Primary Storage(GB):{guestnetwork.Storage * guestnetwork.Instance}");
-                    Console.WriteLine($"LoadBalancer:{(guestnetwork.LoadBalancer ? "Yes":"No")}\n");
-
-
+                    output.AppendLine($"GuestNetwork {k}");
+                    output.AppendLine($"Instance: {gn.Instance}");
+                    output.AppendLine($"CPUs: {gn.CPU * gn.Instance}");
+                    output.AppendLine($"Memory(GB): {gn.Memory * gn.Instance}");
+                    output.AppendLine($"Primary Storage(GB): {gn.Storage * gn.Instance}");
+                    output.AppendLine($"LoadBalancer: {(gn.LoadBalancer ? "Yes" : "No")}\n");
                 }
-                Console.WriteLine($"------------------------------------------------------\n");
+                output.AppendLine("------------------------------------------------------\n");
             }
 
-            using (StreamWriter writer = new StreamWriter(filepath)) 
-            {
-                writer.WriteLine("GuestNetwork,Instance,CPUs,Memory,PrimaryStorage,LoadBalancer");
-                foreach (var gn in allGuestNetworks) 
-                {
-                    writer.WriteLine(gn.DisplayGN());
-                }
-            }
+            File.WriteAllText(filepath, output.ToString());
+            Console.WriteLine(output.ToString());
 
-                // At the very end of your Main method
-
-                // Final Totals
-                int totalVPCs = allVPCS.Count;
-            int totalGuestNetworks = allGuestNetworks.Count;
-            int totalInstances = 0;
-            int totalCPUs = 0;
-            int totalMemory = 0;
-            int totalStorage = 0;
-            int totalLoadBalancers = 0;
+            // Final Totals
+            int totalInstances = 0, totalCPUs = 0, totalMemory = 0, totalStorage = 0, totalLoadBalancers = 0;
 
             foreach (var vpc in allVPCS)
             {
@@ -138,23 +86,40 @@ namespace CloudAppRetry
                 }
             }
 
-            // Display the totals
             Console.WriteLine("============== Final Totals ==============");
-            Console.WriteLine($"Total VPCs: {totalVPCs}");
-            Console.WriteLine($"Total Guest Networks: {totalGuestNetworks}");
+            Console.WriteLine($"Total VPCs: {allVPCS.Count}");
+            Console.WriteLine($"Total Guest Networks: {allGuestNetworks.Count}");
             Console.WriteLine($"Total Instances: {totalInstances}");
             Console.WriteLine($"Total CPUs: {totalCPUs}");
             Console.WriteLine($"Total Memory (GB): {totalMemory}");
             Console.WriteLine($"Total Storage (GB): {totalStorage}");
             Console.WriteLine($"Total Load Balancers: {totalLoadBalancers}");
             Console.WriteLine("==========================================");
+        }
 
+        // Repeat methods
+        static int ReadInt(string prompt)
+        {
+            int value;
+            Console.WriteLine(prompt);
+            while (!int.TryParse(Console.ReadLine(), out value))
+            {
+                Console.WriteLine("Invalid input. Please enter a numeric value.");
+            }
+            return value;
+        }
 
-            //Added 5/28/2025 first post completion change
-            //export data in txt file...
+        static string ReadString(string prompt)
+        {
+            Console.WriteLine(prompt);
+            return Console.ReadLine();
+        }
 
-
-
+        static bool ReadYesNo(string prompt)
+        {
+            Console.WriteLine(prompt);
+            string response = Console.ReadLine().Trim().ToLower();
+            return response == "yes" || response == "y";
         }
     }
 }
