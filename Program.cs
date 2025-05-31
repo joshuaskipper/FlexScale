@@ -95,6 +95,8 @@ namespace CloudAppRetry
             output.AppendLine($"Total Load Balancers: {totalLoadBalancers}");
             output.AppendLine("==========================================");
 
+            Console.Clear();
+
             File.WriteAllText(filepath, output.ToString());
             Console.WriteLine(output.ToString());
 
