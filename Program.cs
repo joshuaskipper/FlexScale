@@ -31,9 +31,11 @@ namespace CloudAppRetry
                 myProject.VPCS.Add(myVPC);
                 allVPCS.Add(myVPC);
 
+                Console.Clear();
                 int projGuestNetworks = ReadInt($"\nHow many Guest Networks for your {i.Ordinalize()} VPC?");
                 for (int j = 1; j <= projGuestNetworks; j++)
                 {
+                    
                     int projInstance = ReadInt($"\nHow many Instances for your {j.Ordinalize()} Guest Network?");
                     int projCPU = ReadInt("CPUs per Instance?");
                     int projMemory = ReadInt("Memory per Instance (GB)?");
@@ -54,6 +56,7 @@ namespace CloudAppRetry
 
             foreach (var vpc in myProject.VPCS)
             {
+
                 output.AppendLine($"*VPC{vpc.ID}");
                 foreach (var gn in vpc.GuestNetworks)
                 {
@@ -96,7 +99,6 @@ namespace CloudAppRetry
             output.AppendLine("==========================================");
 
             Console.Clear();
-
             File.WriteAllText(filepath, output.ToString());
             Console.WriteLine(output.ToString());
 
